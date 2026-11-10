@@ -1,18 +1,20 @@
 # Round Sync - Rclone for Android
 [![license: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/gulp79/Round-Sync/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/gulp79/Round-Sync?include_prereleases)](https://github.com/gulp79/Round-Sync/releases/latest)
-![Downloads](https://img.shields.io/github/downloads/gulp79/Round-Sync/total)  ![Latest Downloads](https://img.shields.io/github/downloads/gulp79/Round-Sync/latest/total)
+![Downloads](https://img.shields.io/github/downloads/alpaslanske/Round-Sync/total)  ![Latest Downloads](https://img.shields.io/github/downloads/alpaslanske/Round-Sync/latest/total)
 
 
 > ⚠️ **Unofficial Fork Disclaimer**  
-> This is an **unofficial fork** of [Round Sync - Rclone for Android](https://github.com/newhinton/Round-Sync), with additional enhancements such as **Alist**, **Alldebrid**, **iCloud Photos**, **Teldrive** and **Terabox** support. 
+> This is an **unofficial fork** of [Round Sync - Rclone for Android](https://github.com/gulp79/Round-Sync)
+> If you have any questions or more information about project please visit this main project.
+> This repository may or not be ahead or behind of main repository.
 > All the backends are from [rclone-extra](https://github.com/gulp79/rclone-extra).
 > I am **not affiliated with the upstream maintainers**, and this fork **does not intend to be malicious or harmful** in any way.  
 > Please **read the source code** if you're unsure or want to verify that it behaves as described.  
 > Contributions, feedback, and scrutiny are welcome.
 
 A cloud file manager, powered by rclone.
-Visit [https://roundsync.com](https://roundsync.com) for more information!
+You can visit [https://roundsync.com](https://roundsync.com) for more information!
 
 
 ## Screenshots

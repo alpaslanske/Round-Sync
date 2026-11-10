@@ -27,7 +27,7 @@
     <string name="star_on_github">GitHub\'da Yıldız Ver</string>
     <string name="report_a_bug">Hata bildir</string>
     <string name="author">Orijinal Yazar</string>
-    <string name="author_name" translatable="false">Patryk Kaczmarkiewicz &lt;github.com/patrykcoding&gt;</string>
+    <string name="author_name" translatable="false">Alpaslan Akıcı &lt;github.com/alpaslanske&gt;</string>
     <string name="follow_on_github">GitHub\'da Takip Et</string>
     <string name="maintainer">Geliştirici</string>
     <string name="maintainer_name" translatable="false">alpaslanske &lt;github.com/alpaslanske&gt;</string>
@@ -48,7 +48,7 @@
     <string name="github_app_url" translatable="false">https://github.com/alpaslanske/Round-Sync</string>
     <string name="github_releases_url" translatable="false">https://github.com/alpaslanske/Round-Sync/releases</string>
     <string name="github_issue_url" translatable="false">https://github.com/alpaslanske/Round-Sync/issues/new/choose</string>
-    <string name="github_author_url" translatable="false">https://github.com/patrykcoding</string>
+    <string name="github_author_url" translatable="false">https://github.com/alpaslanske</string>
     <string name="github_maintainer_url" translatable="false">https://github.com/alpaslanske</string>
     <string name="github_old_maintainer_url" translatable="false">https://github.com/newhinton/Round-Sync</string>
     <string name="replace_config_file_question">Mevcut yapılandırma dosyası değiştirilsin mi?</string>
