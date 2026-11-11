@@ -7,6 +7,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
 import android.net.wifi.WifiManager
+import android.widget.ScrollView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
@@ -160,6 +162,12 @@ class SyncWorker (private val mContext: Context, workerParams: WorkerParameters)
         if (!logDir.exists()) logDir.mkdirs()
 
         val logFile = File(logDir, "${title}_log.txt")
+        
+        // DEĞİŞİKLİK 1: Yeni göreve başlarken, önceki log dosyası varsa sil.
+        if (logFile.exists()) {
+            logFile.delete()
+        }
+
         var finalStatsMsg = ""
 
         sRcloneProcess?.let { localProcessReference ->
@@ -240,6 +248,7 @@ class SyncWorker (private val mContext: Context, workerParams: WorkerParameters)
 
         mNotificationManager.cancelSyncNotification(ongoingNotificationID)
     }
+
     private fun showLogDialog(task: Task) {
         var taskName = task.title
         if (taskName.isNullOrEmpty()) {
@@ -253,7 +262,7 @@ class SyncWorker (private val mContext: Context, workerParams: WorkerParameters)
         }
 
         try {
-            val logContent = StringBuilder()
+            val logContent = java.lang.StringBuilder()
             BufferedReader(java.io.FileReader(logFile)).use { reader ->
                 var line: String?
                 while (reader.readLine().also { line = it } != null) {
@@ -261,11 +270,22 @@ class SyncWorker (private val mContext: Context, workerParams: WorkerParameters)
                 }
             }
 
+            // DEĞİŞİKLİK 2: Okuma/gösterme sınırını aşmak ve uzun metinlerin tamamen 
+            // kaydırılarak okunabilmesini sağlamak için ScrollView kullanıyoruz.
+            val scrollView = ScrollView(mContext)
+            val textView = TextView(mContext).apply {
+                text = logContent.toString()
+                setPadding(40, 20, 40, 20)
+                textSize = 12f
+            }
+            scrollView.addView(textView)
+
             AlertDialog.Builder(mContext)
                 .setTitle("Log: $taskName")
-                .setMessage(logContent.toString())
+                .setView(scrollView)
                 .setPositiveButton("Kapat", null)
                 .show()
+                
         } catch (e: Exception) {
             Toast.makeText(mContext, "Can not read Log: ${e.message}", Toast.LENGTH_SHORT).show()
         }
@@ -415,4 +435,3 @@ class SyncWorker (private val mContext: Context, workerParams: WorkerParameters)
         SyncManager(mContext).queue(followUpTaskID)
     }
 }
-
