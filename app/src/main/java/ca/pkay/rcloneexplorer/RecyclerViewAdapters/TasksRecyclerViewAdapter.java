@@ -39,6 +39,8 @@ import ca.pkay.rcloneexplorer.R;
 import ca.pkay.rcloneexplorer.workmanager.SyncManager;
 import es.dmoral.toasty.Toasty;
 
+import android.widget.Button;
+
 public class TasksRecyclerViewAdapter extends RecyclerView.Adapter<TasksRecyclerViewAdapter.ViewHolder>{
 
     private static final String clipboardID = "rclone_explorer_task_id";
@@ -116,6 +118,10 @@ public class TasksRecyclerViewAdapter extends RecyclerView.Adapter<TasksRecycler
 
         holder.fileOptions.setOnClickListener(v-> {
             showFileMenu(v, selectedTask);
+        });
+
+        holder.taskSyncDirection.setOnClickListener(v -> {
+            startTask(selectedTask);
         });
 
     }
@@ -219,7 +225,7 @@ public class TasksRecyclerViewAdapter extends RecyclerView.Adapter<TasksRecycler
         final TextView toPath;
         final TextView fromPath;
         final ImageButton fileOptions;
-        final TextView taskSyncDirection;
+        final Button taskSyncDirection;
 
         ViewHolder(View itemView) {
             super(itemView);
