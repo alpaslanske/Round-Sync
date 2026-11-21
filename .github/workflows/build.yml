@@ -116,8 +116,10 @@ jobs:
           CMD_RELEASE_KEY_PASSWORD: ${{ env.KEY_PASSWORD }}
           APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
         run: |
+          chmod +x ./gradlew
           echo "Eseguo build completa con TUTTE le architetture (versione: $APP_VERSION_NAME)..."
           ./gradlew assembleOssRelease --stacktrace
+
 
       ###########################################################
       # ARTIFACT SEPARATI
