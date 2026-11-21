@@ -39,10 +39,23 @@
                 android:layout_marginEnd="8dp"
                 android:fontFamily="sans-serif"
                 android:textSize="16sp"
-                app:layout_constraintEnd_toStartOf="@+id/task_sync_direction"
+                app:layout_constraintEnd_toStartOf="@+id/task_speed"
                 app:layout_constraintStart_toEndOf="@+id/taskIcon"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Google Drive" />
+
+            <TextView
+                android:id="@+id/task_speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:textSize="12sp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/taskName"
+                app:layout_constraintEnd_toStartOf="@+id/task_sync_direction"
+                app:layout_constraintTop_toTopOf="@+id/taskName"
+                tools:text="25.4 MB/s"
+                tools:visibility="visible" />
 
             <ImageButton
                 android:id="@+id/file_options"

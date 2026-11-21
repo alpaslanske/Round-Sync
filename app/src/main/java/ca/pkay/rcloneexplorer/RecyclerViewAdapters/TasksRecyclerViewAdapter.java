@@ -27,7 +27,9 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ca.pkay.rcloneexplorer.Activities.ShortcutServiceActivity;
 import ca.pkay.rcloneexplorer.Activities.TaskActivity;
@@ -48,6 +50,7 @@ public class TasksRecyclerViewAdapter extends RecyclerView.Adapter<TasksRecycler
     private List<Task> tasks;
     private View view;
     private final Context context;
+    private final Map<Long, String> taskSpeeds = new HashMap<>();
 
 
     public TasksRecyclerViewAdapter(List<Task> tasks, Context context) {
@@ -68,6 +71,9 @@ public class TasksRecyclerViewAdapter extends RecyclerView.Adapter<TasksRecycler
         String remoteName = selectedTask.getTitle();
 
         holder.taskName.setText(remoteName);
+        String speed = taskSpeeds.get(selectedTask.getId());
+        holder.taskSpeed.setText(speed);
+        holder.taskSpeed.setVisibility(speed == null || speed.isEmpty() ? View.GONE : View.VISIBLE);
 
         RemoteItem remote = new RemoteItem(selectedTask.getRemoteId(), String.valueOf(selectedTask.getRemoteType()));
 
@@ -134,6 +140,21 @@ public class TasksRecyclerViewAdapter extends RecyclerView.Adapter<TasksRecycler
     public void setList(ArrayList<Task> data) {
         tasks = data;
         notifyDataSetChanged();
+    }
+
+    public void setTaskSpeed(long taskId, String speed) {
+        if (speed == null || speed.isEmpty()) {
+            taskSpeeds.remove(taskId);
+        } else {
+            taskSpeeds.put(taskId, speed);
+        }
+
+        for (int i = 0; i < tasks.size(); i++) {
+            if (tasks.get(i).getId() == taskId) {
+                notifyItemChanged(i);
+                break;
+            }
+        }
     }
 
     private void startTask(Task task){
@@ -218,6 +239,7 @@ public class TasksRecyclerViewAdapter extends RecyclerView.Adapter<TasksRecycler
         final View view;
         final ImageView taskIcon;
         final TextView taskName;
+        final TextView taskSpeed;
         final TextView to;
         final TextView from;
         final TextView toID;
@@ -232,6 +254,7 @@ public class TasksRecyclerViewAdapter extends RecyclerView.Adapter<TasksRecycler
             this.view = itemView;
             this.taskIcon = view.findViewById(R.id.taskIcon);
             this.taskName = view.findViewById(R.id.taskName);
+            this.taskSpeed = view.findViewById(R.id.task_speed);
             this.to = view.findViewById(R.id.toLabel);
             this.from = view.findViewById(R.id.fromLabel);
             this.toID = view.findViewById(R.id.toID);
@@ -300,5 +323,3 @@ public class TasksRecyclerViewAdapter extends RecyclerView.Adapter<TasksRecycler
     }
 
 }
-
-

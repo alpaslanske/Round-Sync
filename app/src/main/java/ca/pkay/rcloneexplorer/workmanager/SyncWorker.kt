@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
 import android.net.wifi.WifiManager
+import android.os.SystemClock
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
@@ -53,6 +54,8 @@ class SyncWorker (private val mContext: Context, workerParams: WorkerParameters)
         const val TASK_CANCEL_ACTION = "CANCEL_TASK"
         const val EXTRA_TASK_ID = "task"
         const val EXTRA_TASK_SILENT = "notification"
+        const val ACTION_TASK_SPEED = "ca.pkay.rcloneexplorer.ACTION_TASK_SPEED"
+        const val EXTRA_TASK_SPEED = "task_speed"
     }
 
     internal enum class FAILURE_REASON {
@@ -69,6 +72,7 @@ class SyncWorker (private val mContext: Context, workerParams: WorkerParameters)
     private var sConnectivityChanged = false
     private var sRcloneProcess: Process? = null
     private val statusObject = StatusObject(mContext)
+    private var lastNotificationUpdateRealtime = 0L
     private var failureReason = FAILURE_REASON.NO_FAILURE
     private var endNotificationAlreadyPosted = false
     private var silentRun = false
@@ -109,6 +113,10 @@ class SyncWorker (private val mContext: Context, workerParams: WorkerParameters)
         } else {
             log("No valid task found for ID. Aborting.")
             mNotificationManager.cancelSyncNotification(ongoingNotificationID)
+            val speedIntent = Intent(ACTION_TASK_SPEED)
+            speedIntent.putExtra(EXTRA_TASK_ID, mTask.id)
+            speedIntent.putExtra(EXTRA_TASK_SPEED, "")
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(speedIntent)
             return Result.failure()
         }
         return Result.success()
@@ -213,10 +221,21 @@ class SyncWorker (private val mContext: Context, workerParams: WorkerParameters)
                                 statusObject.parseLoglineToStatusObject(logline)
                             }
 
-                            updateForegroundNotification(mNotificationManager.updateSyncNotification(
-                                title, statusObject.notificationContent, statusObject.notificationBigText,
-                                statusObject.notificationPercent, ongoingNotificationID
-                            ))
+                            val now = SystemClock.elapsedRealtime()
+                            val shouldUpdateNotification = logline.has("stats") &&
+                                now - lastNotificationUpdateRealtime >= 1000L
+                            if (shouldUpdateNotification) {
+                                lastNotificationUpdateRealtime = now
+                                updateForegroundNotification(mNotificationManager.updateSyncNotification(
+                                    title, statusObject.notificationContent, statusObject.notificationBigText,
+                                    statusObject.notificationPercent, ongoingNotificationID
+                                ))
+
+                                val speedIntent = Intent(ACTION_TASK_SPEED)
+                                speedIntent.putExtra(EXTRA_TASK_ID, mTask.id)
+                                speedIntent.putExtra(EXTRA_TASK_SPEED, statusObject.getSpeed())
+                                LocalBroadcastManager.getInstance(mContext).sendBroadcast(speedIntent)
+                            }
                         } catch (e: JSONException) {
                             FLog.e(TAG, "SyncService-Error processing line JSON: $line")
                         }

@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.os.SystemClock
 import android.os.Parcel
 import androidx.annotation.StringRes
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -79,6 +80,7 @@ class EphemeralWorker (private var mContext: Context, workerParams: WorkerParame
 
     private var sRcloneProcess: Process? = null
     private val statusObject = StatusObject(mContext)
+    private var lastNotificationUpdateRealtime = 0L
     private var failureReason = FAILURE_REASON.NO_FAILURE
     private var endNotificationAlreadyPosted = false
     private var silentRun = false
@@ -250,13 +252,19 @@ class EphemeralWorker (private var mContext: Context, workerParams: WorkerParame
                             statusObject.parseLoglineToStatusObject(logline)
                         }
 
-                        updateForegroundNotification(mNotificationManager?.updateNotification(
-                            title,
-                            statusObject.notificationContent,
-                            statusObject.notificationBigText,
-                            statusObject.notificationPercent,
-                            ongoingNotificationID
-                        ))
+                        val now = SystemClock.elapsedRealtime()
+                        val shouldUpdateNotification = logline.has("stats") &&
+                            now - lastNotificationUpdateRealtime >= 1000L
+                        if (shouldUpdateNotification) {
+                            lastNotificationUpdateRealtime = now
+                            updateForegroundNotification(mNotificationManager?.updateNotification(
+                                title,
+                                statusObject.notificationContent,
+                                statusObject.notificationBigText,
+                                statusObject.notificationPercent,
+                                ongoingNotificationID
+                            ))
+                        }
                     } catch (e: JSONException) {
                         Log.e(tag(), "Error: the offending line: $line")
                         //FLog.e(TAG, "onHandleIntent: error reading json", e)

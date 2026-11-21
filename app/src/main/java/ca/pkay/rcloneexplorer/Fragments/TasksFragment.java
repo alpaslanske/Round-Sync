@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.content.BroadcastReceiver;
+import android.content.IntentFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +15,33 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import ca.pkay.rcloneexplorer.Database.DatabaseHandler;
 import ca.pkay.rcloneexplorer.R;
 import ca.pkay.rcloneexplorer.RecyclerViewAdapters.TasksRecyclerViewAdapter;
 import ca.pkay.rcloneexplorer.Activities.TaskActivity;
+import ca.pkay.rcloneexplorer.workmanager.SyncWorker;
 import es.dmoral.toasty.Toasty;
 import jp.wasabeef.recyclerview.animators.LandingAnimator;
 
 public class TasksFragment extends Fragment {
 
     private View fragmentView;
+    private TasksRecyclerViewAdapter recyclerViewAdapter;
+    private final BroadcastReceiver taskSpeedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (recyclerViewAdapter == null) {
+                return;
+            }
+            long taskId = intent.getLongExtra(SyncWorker.EXTRA_TASK_ID, -1);
+            String speed = intent.getStringExtra(SyncWorker.EXTRA_TASK_SPEED);
+            if (taskId >= 0) {
+                recyclerViewAdapter.setTaskSpeed(taskId, speed);
+            }
+        }
+    };
 
     public TasksFragment() {
         // Required empty public constructor
@@ -38,6 +56,8 @@ public class TasksFragment extends Fragment {
         super.onCreate(savedInstanceState);
         ((FragmentActivity) getContext()).setTitle(R.string.tasks);
         setHasOptionsMenu(false);
+        IntentFilter filter = new IntentFilter(SyncWorker.ACTION_TASK_SPEED);
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(taskSpeedReceiver, filter);
     }
 
     @Override
@@ -67,6 +87,12 @@ public class TasksFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(taskSpeedReceiver);
+        super.onDestroy();
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         Activity activity = getActivity();
         Context context = getContext();
@@ -92,7 +118,7 @@ public class TasksFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(c));
         recyclerView.setItemAnimator(new LandingAnimator());
 
-        TasksRecyclerViewAdapter recyclerViewAdapter = new TasksRecyclerViewAdapter(dbHandler.getAllTasks(), c);
+        recyclerViewAdapter = new TasksRecyclerViewAdapter(dbHandler.getAllTasks(), c);
         recyclerView.setAdapter(recyclerViewAdapter);
         recyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
             @Override public void onChildViewAttachedToWindow(final View view) { updateVisibilities(fragmentView); }
