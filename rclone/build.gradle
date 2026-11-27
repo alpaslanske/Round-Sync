@@ -220,7 +220,8 @@ task checkoutRclone(dependsOn: createRcloneModule) {
         }
         
         // Creazione del target nel formato corretto (@SHA)
-        def REPO_TARGET = "github.com/gulp79/rclone-extra@${latestSha}"
+        //def REPO_TARGET = "github.com/gulp79/rclone-extra@${latestSha}"
+        def REPO_TARGET = "github.com/rclone/rclone@v${RCLONE_VERSION}"
 
         println ">>> CONFIGURAZIONE BUILD CON: ${REPO_TARGET}"
 

@@ -229,7 +229,6 @@ public class RcloneRcd {
 
     /**
      * Retrieve the process state
-     * @param process
      * @return 0: running, -1 exited normally, 1 exited with error
      */
     private @ProcessState int getProcessState() {

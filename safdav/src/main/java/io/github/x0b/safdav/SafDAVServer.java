@@ -18,11 +18,13 @@ import io.github.x0b.safdav.xml.XmlResponseSerialization;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 public class SafDAVServer extends NanoHTTPD {
 
     private static final String TAG = "SafDAVServer";
     private static final String hostname = "localhost";
+    @SuppressWarnings("rawtypes")
     private final ItemAccess itemAccess;
     private final XmlResponseSerialization respSerializer;
     private ProviderPaths paths;
@@ -94,7 +96,7 @@ public class SafDAVServer extends NanoHTTPD {
             return true;
         }
         String suppliedAuthHeader = session.getHeaders().get("authorization");
-        return requiredAuthHeader.equals(suppliedAuthHeader);
+        return Objects.equals(requiredAuthHeader, suppliedAuthHeader);
     }
 
     private Response badRequest(String signature) {
@@ -197,12 +199,13 @@ public class SafDAVServer extends NanoHTTPD {
      */
     protected Response onPropFind(IHTTPSession session) {
         String hDepth = session.getHeaders().get("depth");
-        int depth;
-        try {
-            depth = Integer.parseInt(hDepth);
-        } catch (NumberFormatException e) {
-            Log.w(TAG, "Invalid depth header, assuming `1´");
-            depth = 1;
+        int depth = 1;
+        if (hDepth != null) {
+            try {
+                depth = Integer.parseInt(hDepth);
+            } catch (NumberFormatException e) {
+                Log.w(TAG, "Invalid depth header, assuming `1´");
+            }
         }
 
         // if root, offer permissions; else, normalize (strip permission from) path
@@ -332,6 +335,9 @@ public class SafDAVServer extends NanoHTTPD {
         Log.d(TAG, "onPut: PUT " + path + "; " + mime + "; " + lengthValue + " byte");
         InputStream is = session.getInputStream();
         long length;
+        if (lengthValue == null) {
+            return badRequest("onPut");
+        }
         try {
             length = Long.parseLong(lengthValue);
         } catch (NumberFormatException e) {

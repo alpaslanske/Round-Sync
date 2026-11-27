@@ -177,7 +177,11 @@ public class TriggerService extends Service {
 
         // this can happen if the trigger was scheduled, but then deleted.
         if(t == null) {
-            stopForeground(true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                stopForeground(STOP_FOREGROUND_REMOVE);
+            } else {
+                stopForeground(true);
+            }
             return Service.START_NOT_STICKY;
         }
 

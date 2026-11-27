@@ -205,7 +205,7 @@ signingConfigs {
     }
 
     gradle.projectsEvaluated {
-        preBuild.dependsOn(':rclone:buildAll')
+        //preBuild.dependsOn(':rclone:buildAll')
     }
 
     namespace 'ca.pkay.rcloneexplorer'

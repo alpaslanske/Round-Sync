@@ -24,6 +24,7 @@ import android.view.SubMenu;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -137,6 +138,37 @@ public class MainActivity extends AppCompatActivity
         drawer = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+                View searchButton = findViewById(R.id.searchButton);
+                if (searchButton != null) {
+                    searchButton.setVisibility(View.INVISIBLE);
+                }
+
+                if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    return;
+                }
+                if (fragment != null) {
+                    if (fragment instanceof FileExplorerFragment) {
+                        if (((FileExplorerFragment) fragment).onBackButtonPressed()) {
+                            return;
+                        } else {
+                            fragment = null;
+                        }
+                    } else if (fragment instanceof TasksFragment || fragment instanceof TriggerFragment) {
+                        startRemotesFragment();
+                        return;
+                    }
+                }
+                setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
+                setEnabled(true);
+            }
+        });
 
         rclone = new Rclone(this);
 
@@ -309,40 +341,11 @@ public class MainActivity extends AppCompatActivity
         File dir = getExternalCacheDir();
         if (dir != null && dir.isDirectory()) {
             String[] children = dir.list();
-            for (String aChildren : children) {
-                new File(dir, aChildren).delete();
-            }
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        boolean superOnBackPressed = true;
-
-        // Always hide search icon when fragments go back
-        View searchButton = this.findViewById(R.id.searchButton);
-        searchButton.setVisibility(View.INVISIBLE);
-
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else if (fragment != null) {
-            if(fragment instanceof FileExplorerFragment){
-                if (((FileExplorerFragment) fragment).onBackButtonPressed()) {
-                    return;
-                } else {
-                    fragment = null;
+            if (children != null) {
+                for (String aChildren : children) {
+                    new File(dir, aChildren).delete();
                 }
-            } else if(fragment instanceof TasksFragment){
-                startRemotesFragment();
-                superOnBackPressed=false;
-            } else if(fragment instanceof TriggerFragment){
-                startRemotesFragment();
-                superOnBackPressed=false;
             }
-        }
-        if(superOnBackPressed){
-            super.onBackPressed();
         }
     }
 
@@ -651,6 +654,7 @@ public class MainActivity extends AppCompatActivity
         pinRemotesToDrawer();
     }
 
+    @SuppressWarnings("deprecation")
     @SuppressLint("StaticFieldLeak")
     private class CopyConfigFile extends AsyncTask<Uri, Void, Boolean> {
 
@@ -776,6 +780,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @SuppressWarnings("deprecation")
+    @SuppressLint("StaticFieldLeak")
     private class RefreshLocalAliases extends AsyncTask<Void, Void, Boolean> {
 
         private String EMULATED = "5d44cd8d-397c-4107-b79b-17f2b6a071e8";
@@ -966,6 +972,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @SuppressWarnings("deprecation")
     @SuppressLint("StaticFieldLeak")
     private class DecryptConfig extends AsyncTask<String, Void, Boolean> {
 

@@ -30,7 +30,7 @@
     <string name="author_name" translatable="false">Alpaslan Akıcı &lt;github.com/alpaslanske&gt;</string>
     <string name="follow_on_github">GitHub\'da Takip Et</string>
     <string name="maintainer">Geliştirici</string>
-    <string name="maintainer_name" translatable="false">alpaslanske &lt;github.com/alpaslanske&gt;</string>
+    <string name="maintainer_name" translatable="false">Alpaslan Akıcı &lt;github.com/alpaslanske&gt;</string>
     <string name="old_maintainer">Orijinal Proje</string>
     <string name="old_maintainer_name" translatable="false">Felix Nüsse &lt;github.com/newhinton&gt;</string>
     <string name="empty_folder">Klasör boş</string>

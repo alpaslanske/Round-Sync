@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       send_telegram:
-        description: 'Invia APK a Telegram'
+        description: 'Telegram ile oluştur'
         type: boolean
         default: false
 
@@ -45,31 +45,54 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
+      # ---------------------------------------------------------
+      # RELEASE'DEN HAZIR RCLONE KÜTÜPHANELERİNİ ÇEK (app/lib/*.so)
+      # ---------------------------------------------------------
+      # - name: Download prebuilt rclone from v2.6.5 release
+      #   id: download-rclone
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     if gh release download v2.6.5 --pattern "*universal-release.apk" --output universal.apk; then
+      #       unzip -o universal.apk "lib/*/librclone.so" -d app/
+      #       rm universal.apk
+      #       echo "prebuilt=true" >> "$GITHUB_OUTPUT"
+      #     else
+      #       echo "Release dosyası indirilemedi, sıfırdan derlenecek..."
+      #       echo "prebuilt=false" >> "$GITHUB_OUTPUT"
+      #     fi
+      # ---------------------------------------------------------
+      # ASIL REPODAN HAZIR RCLONE KÜTÜPHANELERİNİ ÇEK (app/lib/*.so)
+      # ---------------------------------------------------------
+      - name: Download prebuilt rclone from upstream latest release
+        id: download-rclone
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release download --repo gulp79/Round-Sync --pattern "*universal-release.apk" --output universal.apk; then
+            unzip -o universal.apk "lib/*/librclone.so" -d app/
+            rm universal.apk
+            echo "prebuilt=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Release dosyası indirilemedi, sıfırdan derlenecek..."
+            echo "prebuilt=false" >> "$GITHUB_OUTPUT"
+          fi
+
       # -----------------------------
-      # GO
+      # GO (Sadece hazır rclone indirilemezse çalışır)
       # -----------------------------
       - name: Setup Go
+        if: steps.download-rclone.outputs.prebuilt != 'true'
         uses: actions/setup-go@v7
         with:
           go-version: '1.27.x'
           cache: false
 
-      # ---------------------------------------------------------
-      # CACHE Go build cache (velocizza compilazioni rclone)
-      # ---------------------------------------------------------
-      - name: Cache Go build cache
-        uses: actions/cache@v6
-        with:
-          path: |
-            ~/.cache/go-build
-          key: go-build-${{ runner.os }}-${{ github.sha }}
-          restore-keys: |
-            go-build-${{ runner.os }}-
-
       # -----------------------------
-      # ANDROID NDK
+      # ANDROID NDK (Sadece hazır rclone indirilemezse çalışır)
       # -----------------------------
       - name: Setup Android NDK
+        if: steps.download-rclone.outputs.prebuilt != 'true'
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r27d
@@ -90,16 +113,13 @@ jobs:
       - name: Resolve app version from git tag
         id: app_version
         run: |
-          # On a tag push, GITHUB_REF_NAME is already the tag (e.g. v2.6.2)
-          # On workflow_dispatch, pick the latest reachable tag instead
           if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
             RAW_TAG="${GITHUB_REF_NAME}"
           else
             RAW_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           fi
-          VERSION="${RAW_TAG#v}"   # strip leading 'v'
+          VERSION="${RAW_TAG#v}"
           if [[ -z "$VERSION" ]]; then
-            # ultimate fallback: read from gradle.properties
             VERSION=$(grep '^de\.felixnuesse\.extract\.versionName=' gradle.properties | cut -d'=' -f2)
           fi
           echo "Resolved version: $VERSION"
@@ -117,12 +137,11 @@ jobs:
           APP_VERSION_NAME: ${{ steps.app_version.outputs.version }}
         run: |
           chmod +x ./gradlew
-          echo "Eseguo build completa con TUTTE le architetture (versione: $APP_VERSION_NAME)..."
+          echo "Hazır rclone kütüphaneleriyle APK derleniyor (versione: $APP_VERSION_NAME)..."
           ./gradlew assembleOssRelease --stacktrace
 
-
       ###########################################################
-      # ARTIFACT SEPARATI
+      # ARTIFACT AYRIMI
       ###########################################################
 
       - name: Upload APK arm64-v8a

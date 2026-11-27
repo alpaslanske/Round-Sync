@@ -40,19 +40,20 @@ public class RcdService extends Service implements RcloneRcd.JobsUpdateHandler {
 
     /**
      * If the service was started 60 or less seconds ago, it ignores system memory pressure of
-     * level {@link android.content.ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW}.
+     * level {@link android.content.ComponentCallbacks2#TRIM_MEMORY_RUNNING_LOW}.
      */
     private static final int ALIVE_SECONDS_LOW = 60;
 
     /**
      * If the service was started 30 or less seconds ago, it ignores system memory pressure of
-     * level {@link android.content.ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL}.
+     * level {@link android.content.ComponentCallbacks2#TRIM_MEMORY_RUNNING_CRITICAL}.
      */
     private static final int ALIVE_SECONDS_CRITICAL = 30;
 
     private RcloneRcd rcloneRcd;
     private boolean shutdown;
-    private Boolean available;
+    private final Object availableLock = new Object();
+    private boolean available = false;
     private long initNanosTimestamp = 0;
 
     private final IBinder binder = new RcdBinder();
@@ -166,7 +167,11 @@ public class RcdService extends Service implements RcloneRcd.JobsUpdateHandler {
         if (intent != null && ACTION_STOP_FOREGROUND.equals(intent.getAction())) {
             FLog.d(TAG, "Removing foreground service");
             shutdown();
-            stopForeground(true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                stopForeground(STOP_FOREGROUND_REMOVE);
+            } else {
+                stopForeground(true);
+            }
             stopSelf();
         } else {
             showNotification();
@@ -302,13 +307,13 @@ public class RcdService extends Service implements RcloneRcd.JobsUpdateHandler {
     public boolean waitOnline(long timeout) {
         long retries = timeout / 150;
         while (retries > 0) {
-            synchronized (available) {
+            synchronized (availableLock) {
                 try {
                     rcloneRcd.isOnline();
                 } catch (NullPointerException | RcloneRcd.RcdIOException e) {
                     FLog.v(TAG, "rcd not yet online");
                     try {
-                        available.wait(150);
+                        availableLock.wait(150);
                     } catch (InterruptedException ignored) {
                     }
                     retries--;
