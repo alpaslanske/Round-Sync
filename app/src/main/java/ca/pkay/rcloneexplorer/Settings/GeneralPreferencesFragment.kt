@@ -9,6 +9,7 @@ import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
@@ -33,6 +34,22 @@ class GeneralPreferencesFragment : PreferenceFragmentCompat() {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         requireActivity().title = getString(R.string.pref_header_general)
 
+        val transferCountPreference =
+            findPreference<EditTextPreference>(getString(R.string.pref_key_transfer_count))
+        transferCountPreference?.summaryProvider =
+            Preference.SummaryProvider<EditTextPreference> { preference ->
+                val count = preference.text?.toIntOrNull() ?: 1
+                getString(R.string.transfer_count_summary, count)
+            }
+        transferCountPreference?.setOnPreferenceChangeListener { _, newValue ->
+            val count = newValue.toString().toIntOrNull()
+            if (count == null || count !in 1..8) {
+                Toast.makeText(requireContext(), R.string.transfer_count_invalid, Toast.LENGTH_SHORT).show()
+                false
+            } else {
+                true
+            }
+        }
 
         val thumbnailKey = getString(R.string.pref_key_thumbnail_size_limit)
         val thumbnailSizePreference = findPreference(thumbnailKey) as FilesizePreference?

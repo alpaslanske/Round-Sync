@@ -135,6 +135,9 @@
     <string name="dark_theme">Koyu tema</string>
     <string name="transfer_only_on_wifi">Dosyaları yalnızca Wi-Fi üzerinden aktar</string>
     <string name="transfer_only_on_wifi_summary">Dosya aktarımları için Wi-Fi bağlantısı gerektir</string>
+    <string name="transfer_count_title">Eşzamanlı dosya aktarımı</string>
+    <string name="transfer_count_summary">Aynı anda %1$d dosya (1–8)</string>
+    <string name="transfer_count_invalid">1 ile 8 arasında bir sayı girin.</string>
     <string name="pref_use_proxy_title">Proxy Kullan</string>
     <string name="pref_use_proxy_summary">Desteklenen tüm veri aktarımları için proxy kullan (HTTP, HTTPS)</string>
     <string name="pref_proxy_protocol">Proxy Protokolü</string>

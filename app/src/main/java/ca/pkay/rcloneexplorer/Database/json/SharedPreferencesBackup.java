@@ -22,6 +22,7 @@ public class SharedPreferencesBackup {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean showThumbnails = sharedPreferences.getBoolean(context.getString(R.string.pref_key_show_thumbnails), false);
         boolean isWifiOnly = sharedPreferences.getBoolean(context.getString(R.string.pref_key_wifi_only_transfers), false);
+        int transferCount = sharedPreferences.getInt(context.getString(R.string.pref_key_transfer_count), 1);
         boolean allowWhileIdle = sharedPreferences.getBoolean(context.getString(R.string.shared_preferences_allow_sync_trigger_while_idle), false);
         boolean useProxy = sharedPreferences.getBoolean(context.getString(R.string.pref_key_use_proxy), false);
         String proxyProtocol = sharedPreferences.getString(context.getString(R.string.pref_key_proxy_protocol), "http");
@@ -52,6 +53,7 @@ public class SharedPreferencesBackup {
 
         main.put("showThumbnails", showThumbnails);
         main.put("isWifiOnly", isWifiOnly);
+        main.put("transferCount", transferCount);
         main.put("allowWhileIdle", allowWhileIdle);
         main.put("useProxy", useProxy);
         main.put("proxyProtocol", proxyProtocol);
@@ -80,6 +82,7 @@ public class SharedPreferencesBackup {
         //General Settings
         editor.putBoolean(context.getString(R.string.pref_key_show_thumbnails), jsonObject.getBoolean("showThumbnails"));
         editor.putBoolean(context.getString(R.string.pref_key_wifi_only_transfers), jsonObject.getBoolean("isWifiOnly"));
+        editor.putInt(context.getString(R.string.pref_key_transfer_count), Math.max(1, Math.min(8, jsonObject.optInt("transferCount", 1))));
         editor.putBoolean(context.getString(R.string.pref_key_use_proxy), jsonObject.getBoolean("useProxy"));
         editor.putBoolean(context.getString(R.string.shared_preferences_allow_sync_trigger_while_idle), jsonObject.optBoolean("allowWhileIdle", false));
         editor.putString(context.getString(R.string.pref_key_proxy_protocol), jsonObject.getString("proxyProtocol"));

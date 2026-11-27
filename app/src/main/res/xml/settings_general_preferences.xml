@@ -36,6 +36,13 @@
             android:key="@string/pref_key_wifi_only_transfers"
             android:title="@string/transfer_only_on_wifi"
             app:summary="@string/transfer_only_on_wifi_summary" />
+        <de.felixnuesse.extract.settings.preferences.EditIntPreference
+            android:defaultValue="1"
+            android:inputType="number"
+            android:key="@string/pref_key_transfer_count"
+            android:numeric="integer"
+            android:title="@string/transfer_count_title"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/preference_category_header_proxy">
