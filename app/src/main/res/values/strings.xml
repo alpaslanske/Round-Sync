@@ -129,6 +129,9 @@
     <string name="intro_community_title">Community</string>
     <string name="intro_community_description">Round Sync is a community driven project. To contribute and improve the application, you can enable anonymous bug reporting. For more information, please visit felixnuesse.de/privacy-roundsync.</string>
     <string name="view_log">View Log</string>
+    <string name="open_log_with">Open with another app</string>
+    <string name="log_viewer_not_found">No app that can view text files was found.</string>
+    <string name="log_open_failed">Could not open the log file.</string>
     <string name="file_access">File Access</string>
     <string name="look_and_feel">Look and Feel</string>
     <string name="dark_theme">Dark theme</string>

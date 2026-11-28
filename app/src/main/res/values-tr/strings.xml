@@ -130,6 +130,9 @@
     <string name="intro_community_title">Topluluk</string>
     <string name="intro_community_description">Round Sync topluluk odaklı bir projedir. Uygulamanın geliştirilmesine katkıda bulunmak için anonim hata bildirimini etkinleştirebilirsiniz. Daha fazla bilgi için lütfen felixnuesse.de/privacy-roundsync adresini ziyaret edin.</string>
     <string name="view_log">Günlüğü Görüntüle</string>
+    <string name="open_log_with">Başka bir uygulamayla aç</string>
+    <string name="log_viewer_not_found">Metin dosyalarını görüntüleyebilecek bir uygulama bulunamadı.</string>
+    <string name="log_open_failed">Günlük dosyası açılamadı.</string>
     <string name="file_access">Dosya Erişimi</string>
     <string name="look_and_feel">Görünüm ve Tema</string>
     <string name="dark_theme">Koyu tema</string>

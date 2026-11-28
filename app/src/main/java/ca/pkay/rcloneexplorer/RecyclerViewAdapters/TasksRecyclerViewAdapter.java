@@ -8,6 +8,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ActivityNotFoundException;
 import android.net.Uri;
 import android.os.Build;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -38,7 +40,9 @@ import ca.pkay.rcloneexplorer.Items.RemoteItem;
 import ca.pkay.rcloneexplorer.Items.SyncDirectionObject;
 import ca.pkay.rcloneexplorer.Items.Task;
 import ca.pkay.rcloneexplorer.R;
+import ca.pkay.rcloneexplorer.BuildConfig;
 import ca.pkay.rcloneexplorer.workmanager.SyncManager;
+import ca.pkay.rcloneexplorer.util.FLog;
 import es.dmoral.toasty.Toasty;
 
 import android.widget.Button;
@@ -296,11 +300,35 @@ public class TasksRecyclerViewAdapter extends RecyclerView.Adapter<TasksRecycler
             new androidx.appcompat.app.AlertDialog.Builder(context)
                     .setTitle("Log: " + taskName)
                     .setMessage(logContent.toString())
+                    .setNeutralButton(R.string.open_log_with, (dialog, which) -> openLogWithAnotherApp(logFile))
                     .setPositiveButton("Kapat", null)
                     .show();
 
         } catch (Exception e) {
             android.widget.Toast.makeText(context, "Log okunamadı: " + e.getMessage(), android.widget.Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void openLogWithAnotherApp(java.io.File logFile) {
+        try {
+            Uri logUri = FileProvider.getUriForFile(
+                    context,
+                    BuildConfig.APPLICATION_ID + ".fileprovider",
+                    logFile
+            );
+            Intent viewIntent = new Intent(Intent.ACTION_VIEW);
+            viewIntent.setDataAndType(logUri, "text/plain");
+            viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            if (viewIntent.resolveActivity(context.getPackageManager()) == null) {
+                Toast.makeText(context, R.string.log_viewer_not_found, Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            context.startActivity(Intent.createChooser(viewIntent, context.getString(R.string.open_log_with)));
+        } catch (ActivityNotFoundException | IllegalArgumentException | SecurityException e) {
+            FLog.e("TasksRecyclerViewAdapter", "Could not open task log with another app", e);
+            Toast.makeText(context, R.string.log_open_failed, Toast.LENGTH_LONG).show();
         }
     }
 

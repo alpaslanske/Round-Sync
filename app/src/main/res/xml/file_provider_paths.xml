@@ -1,5 +1,6 @@
 <paths
     xmlns:android="http://schemas.android.com/apk/res/android">
     <external-cache-path name="cache" path="/"/>
+    <external-files-path name="task-logs" path="logs/" />
     <cache-path name="internal-cache" path="report/" />
 </paths>
